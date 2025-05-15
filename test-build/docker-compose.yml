@@ -1,0 +1,119 @@
+version: '3'
+services:
+  execution:
+    image: base-node-1_execution
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    volumes:
+#      - ./data:/data
+    ports:
+      - "8546:8545"
+      - "8547:8546"
+      - "30303:30303"
+      - "30303:30303/udp"
+      - "7301:6060"
+    environment:
+      # Network Configuration
+      - RETH_CHAIN=${RETH_CHAIN}
+      - OP_NODE_NETWORK=${OP_NODE_NETWORK}
+      - OP_GETH_OP_NETWORK=${OP_GETH_OP_NETWORK}
+      
+      # Sequencer Endpoints
+      - RETH_SEQUENCER_HTTP=${RETH_SEQUENCER_HTTP}
+      - OP_SEQUENCER_HTTP=${OP_SEQUENCER_HTTP}
+      - OP_GETH_SEQUENCER_HTTP=${OP_GETH_SEQUENCER_HTTP}
+      - OP_RETH_SEQUENCER_HTTP=${OP_RETH_SEQUENCER_HTTP}
+      
+      # Engine Configuration
+      - OP_NODE_L2_ENGINE_KIND=${OP_NODE_L2_ENGINE_KIND}
+      - OP_NODE_L2_ENGINE_RPC=${OP_NODE_L2_ENGINE_RPC}
+      - OP_NODE_L2_ENGINE_AUTH=${OP_NODE_L2_ENGINE_AUTH}
+      - OP_NODE_L2_ENGINE_AUTH_RAW=${OP_NODE_L2_ENGINE_AUTH_RAW}
+      
+      # RETH Configuration
+      - OP_RETH_DISABLE_DISCOVERY=${OP_RETH_DISABLE_DISCOVERY}
+      - OP_RETH_DISABLE_TX_POOL_GOSSIP=${OP_RETH_DISABLE_TX_POOL_GOSSIP}
+      - OP_RETH_OP_NETWORK=${OP_RETH_OP_NETWORK}
+      
+      # GETH Cache Settings
+      - GETH_CACHE=${GETH_CACHE}
+      - GETH_CACHE_DATABASE=${GETH_CACHE_DATABASE}
+      - GETH_CACHE_GC=${GETH_CACHE_GC}
+      - GETH_CACHE_SNAPSHOT=${GETH_CACHE_SNAPSHOT}
+      - GETH_CACHE_TRIE=${GETH_CACHE_TRIE}
+      
+      # Optional Settings
+      - RETH_FB_WEBSOCKET_URL=${RETH_FB_WEBSOCKET_URL}
+    networks:
+      - base-node-1_default
+
+  node:
+    image: base-node-1_node
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    volumes:
+#      - ./data:/data
+    ports:
+      - "9222:9222"
+      - "9222:9222/udp"
+    environment:
+      # Network Configuration
+      - OP_NODE_NETWORK=${OP_NODE_NETWORK}
+      - OP_NODE_SYNCMODE=${OP_NODE_SYNCMODE}
+      - OP_NODE_VERIFIER_L1_CONFS=${OP_NODE_VERIFIER_L1_CONFS}
+      - OP_NODE_ROLLUP_LOAD_PROTOCOL_VERSIONS=${OP_NODE_ROLLUP_LOAD_PROTOCOL_VERSIONS}
+      
+      # L1 Configuration
+      - OP_NODE_L1_ETH_RPC=${OP_NODE_L1_ETH_RPC}
+      - OP_NODE_L1_BEACON=${OP_NODE_L1_BEACON}
+      - OP_NODE_L1_BEACON_FETCH_ALL_SIDECARS=${OP_NODE_L1_BEACON_FETCH_ALL_SIDECARS}
+      - OP_NODE_L1_RPC_KIND=${OP_NODE_L1_RPC_KIND}
+      - OP_NODE_L1_TRUST_RPC=${OP_NODE_L1_TRUST_RPC}
+      
+      # Engine Configuration
+      - OP_NODE_L2_ENGINE_KIND=${OP_NODE_L2_ENGINE_KIND}
+      - OP_NODE_L2_ENGINE_RPC=${OP_NODE_L2_ENGINE_RPC}
+      - OP_NODE_L2_ENGINE_AUTH=${OP_NODE_L2_ENGINE_AUTH}
+      - OP_NODE_L2_ENGINE_AUTH_RAW=${OP_NODE_L2_ENGINE_AUTH_RAW}
+      
+      # P2P Configuration
+      - OP_NODE_P2P_AGENT=${OP_NODE_P2P_AGENT}
+      - OP_NODE_P2P_LISTEN_IP=${OP_NODE_P2P_LISTEN_IP}
+      - OP_NODE_P2P_LISTEN_TCP_PORT=${OP_NODE_P2P_LISTEN_TCP_PORT}
+      - OP_NODE_P2P_LISTEN_UDP_PORT=${OP_NODE_P2P_LISTEN_UDP_PORT}
+      - OP_NODE_INTERNAL_IP=${OP_NODE_INTERNAL_IP}
+      - OP_NODE_P2P_ADVERTISE_IP=${OP_NODE_P2P_ADVERTISE_IP}
+      - OP_NODE_P2P_BOOTNODES=${OP_NODE_P2P_BOOTNODES}
+      
+      # RPC Configuration
+      - OP_NODE_RPC_ADDR=${OP_NODE_RPC_ADDR}
+      - OP_NODE_RPC_PORT=${OP_NODE_RPC_PORT}
+      
+      # Logging & Monitoring
+      - OP_NODE_LOG_LEVEL=${OP_NODE_LOG_LEVEL}
+      - OP_NODE_LOG_FORMAT=${OP_NODE_LOG_FORMAT}
+      - OP_NODE_SNAPSHOT_LOG=${OP_NODE_SNAPSHOT_LOG}
+      - OP_NODE_METRICS_ENABLED=${OP_NODE_METRICS_ENABLED}
+      - OP_NODE_METRICS_ADDR=${OP_NODE_METRICS_ADDR}
+      - OP_NODE_METRICS_PORT=${OP_NODE_METRICS_PORT}
+      - STATSD_ADDRESS=${STATSD_ADDRESS}
+    networks:
+      - base-node-1_default
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8545:8545"
+    depends_on:
+      - execution
+    networks:
+      - base-node-1_default
+
+networks:
+  base-node-1_default:
+    driver: bridge
+ 

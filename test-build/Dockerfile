@@ -44,7 +44,7 @@ WORKDIR /app
 COPY --from=op /app/op-node/bin/op-node ./
 COPY --from=geth /app/build/bin/geth ./
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY geth/geth-entrypoint ./geth-entrypoint
+COPY geth/geth-entrypoint ./execution-entrypoint
 COPY op-node-entrypoint .
 
 CMD ["/usr/bin/supervisord"]

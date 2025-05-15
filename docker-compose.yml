@@ -1,34 +1,75 @@
+version: '3.8'
 services:
   execution:
-    build:
-      context: .
-      dockerfile: ${CLIENT:-geth}/Dockerfile
+    image: base-node-1_execution
     ports:
-      - "8545:8545" # RPC
-      - "8546:8546" # websocket
-      - "7301:6060" # metrics
-      - "30303:30303" # P2P TCP
-      - "30303:30303/udp" # P2P UDP
-    command: ["bash", "./execution-entrypoint"]
-    volumes:
-      - ${HOST_DATA_DIR}:/data
+      - "8545:8545"
+      - "8547:8546"
+      - "30303:30303"
+      - "7301:6060"
     environment:
-      - NODE_TYPE=${NODE_TYPE:-vanilla}
-    env_file:
-      - ${NETWORK_ENV:-.env.mainnet} # Use .env.mainnet by default, override with .env.sepolia for testnet
+      - OP_NODE_NETWORK=base-mainnet
+      - OP_GETH_OP_NETWORK=base-mainnet
+      - RETH_CHAIN=base
+      - OP_NODE_L1_ETH_RPC=https://eth.convexitylabs.us
+      - OP_NODE_L1_BEACON=https://beacon.convexitylabs.us/eth/v1/node
+      - OP_NODE_L1_BEACON_FETCH_ALL_SIDECARS=true
+      - OP_NODE_L1_RPC_KIND=debug_geth
+      - OP_NODE_L1_TRUST_RPC=false
+      - OP_NODE_L2_ENGINE_KIND=reth
+      - OP_NODE_L2_ENGINE_RPC=ws://execution:8551
+      - OP_NODE_L2_ENGINE_AUTH=/tmp/engine-auth-jwt
+      - OP_NODE_L2_ENGINE_AUTH_RAW=4cff6be3f38fa4b17c351853bb526e8f52e95f2bce2c8c17afaaa2bd859a973e
+      - OP_NODE_P2P_AGENT=base
+      - OP_NODE_P2P_LISTEN_IP=0.0.0.0
+      - OP_NODE_P2P_LISTEN_TCP_PORT=9222
+      - OP_NODE_P2P_LISTEN_UDP_PORT=9222
+      - OP_NODE_INTERNAL_IP=true
+      - OP_NODE_P2P_ADVERTISE_IP=127.0.0.1
+      - OP_NODE_RPC_ADDR=0.0.0.0
+      - OP_NODE_RPC_PORT=8545
+      - OP_NODE_LOG_LEVEL=info
+      - OP_NODE_LOG_FORMAT=json
+      - OP_NODE_METRICS_ENABLED=true
+      - OP_NODE_METRICS_ADDR=0.0.0.0
+      - OP_NODE_METRICS_PORT=7300
+    networks:
+      - base-node-network
 
   node:
-    build:
-      context: .
-      dockerfile: ${CLIENT:-geth}/Dockerfile
-    depends_on:
-      - execution
+    image: base-node-1_node
     ports:
-      - "7545:8545" # RPC
-      - "9222:9222" # P2P TCP
-      - "9222:9222/udp" # P2P UDP
-      - "7300:7300" # metrics
-      - "6060:6060" # pprof
-    command: ["bash", "./op-node-entrypoint"]
-    env_file:
-      - ${NETWORK_ENV:-.env.mainnet} # Use .env.mainnet by default, override with .env.sepolia for testnet
+      - "9222:9222"
+    environment:
+      - OP_NODE_NETWORK=base-mainnet
+      - OP_GETH_OP_NETWORK=base-mainnet
+      - RETH_CHAIN=base
+      - OP_NODE_L1_ETH_RPC=https://eth.convexitylabs.us
+      - OP_NODE_L1_BEACON=https://beacon.convexitylabs.us/eth/v1/node
+      - OP_NODE_L1_BEACON_FETCH_ALL_SIDECARS=true
+      - OP_NODE_L1_RPC_KIND=debug_geth
+      - OP_NODE_L1_TRUST_RPC=false
+      - OP_NODE_L2_ENGINE_KIND=reth
+      - OP_NODE_L2_ENGINE_RPC=ws://execution:8551
+      - OP_NODE_L2_ENGINE_AUTH=/tmp/engine-auth-jwt
+      - OP_NODE_L2_ENGINE_AUTH_RAW=4cff6be3f38fa4b17c351853bb526e8f52e95f2bce2c8c17afaaa2bd859a973e
+      - OP_NODE_P2P_AGENT=base
+      - OP_NODE_P2P_LISTEN_IP=0.0.0.0
+      - OP_NODE_P2P_LISTEN_TCP_PORT=9222
+      - OP_NODE_P2P_LISTEN_UDP_PORT=9222
+      - OP_NODE_INTERNAL_IP=true
+      - OP_NODE_P2P_ADVERTISE_IP=127.0.0.1
+      - OP_NODE_RPC_ADDR=0.0.0.0
+      - OP_NODE_RPC_PORT=8545
+      - OP_NODE_LOG_LEVEL=info
+      - OP_NODE_LOG_FORMAT=json
+      - OP_NODE_METRICS_ENABLED=true
+      - OP_NODE_METRICS_ADDR=0.0.0.0
+      - OP_NODE_METRICS_PORT=7300
+    networks:
+      - base-node-network
+
+networks:
+  base-node-network:
+    driver: bridge
+ 

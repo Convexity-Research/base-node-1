@@ -12,7 +12,6 @@ P2P_PORT="${P2P_PORT:-30303}"
 ADDITIONAL_ARGS=""
 OP_GETH_GCMODE="${OP_GETH_GCMODE:-full}"
 OP_GETH_SYNCMODE="${OP_GETH_SYNCMODE:-full}"
-OP_GETH_SEQUENCER_HTTP="${OP_GETH_SEQUENCER_HTTP:-https://mainnet-sequencer.base.org}"
 
 # Add cache and txpool optimizations with defaults
 GETH_CACHE="${GETH_CACHE:-20480}"
